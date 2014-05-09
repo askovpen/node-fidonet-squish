@@ -147,7 +147,6 @@ Squish.prototype.readHeader = function(number, callback){ // err, struct
 						_Squish.SQD[i+3]==69 && //E
 						_Squish.SQD[i+4]==78 ){ //N
 						seenPos=i+1;
-//						console.log("!!!!");
 					}
 				}
 				if (pathPos===null){
@@ -183,8 +182,6 @@ Squish.prototype.readHeader = function(number, callback){ // err, struct
 					_Squish.SQD.copy(header.msg,0,offsetSQD,endPos);
 				}
 			}
-//			console.log(sb.bufToStr(header.msg,'cp866').replace(/\r/g, '\n'));
-//			console.log(header.msg.toJSON());
 			callback(null,header);
 		});
 		
@@ -228,7 +225,6 @@ Squish.prototype.decodeHeader = function(header, decodeOptions){
 	var options = extend(decodeDefaults, decodeOptions);
 	var encoding=this.encodingFromHeader(header);
 	if( encoding === null ) encoding = options.defaultEncoding;
-//	console.log("enc: "+encoding);
 	var decoded={};
 	decoded.kludges = [];
 	decoded.origTime=moment.utc(header.fromDate.toString()).toArray();
@@ -308,7 +304,6 @@ Squish.prototype.numbersForMSGID = function(MSGID, decodeOptions, callback) {
 		var resultArray = messageHeaders.map(function(hdr, idx){
 			if (MSGID.indexOf(hdr.msgid)>-1) return idx+1;
 			return null;
-//			console.log(idx);
 		}).filter(function(number){ return number!==null;});
 		callback(null,resultArray);
 	});
