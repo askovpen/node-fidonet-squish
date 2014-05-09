@@ -1,13 +1,17 @@
 {
 	"name": "fidonet-squish",
 	"main": "fidonet-squish.js",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Fidonet Squish message base parser",
 	"keywords": ["Fidonet", "Fido", "Squish"],
 	"author": { "name": "Alexander N. Skovpen" },
 	"dependencies": {
 		"moment": "~2.3.0",
 		"singlebyte": "~1.0.10"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/askovpen/node-fidonet-squish.git"
 	},
 	"scripts": {
 		"pretest": "jshint fidonet-squish.js test/test.js",
