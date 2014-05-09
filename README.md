@@ -68,3 +68,5 @@ Returns `.indexStructure.length` property (or `undefined` when `.indexStructure`
 
 ...
 
+
+[![Build Status](https://travis-ci.org/askovpen/node-fidonet-squish.svg?branch=master)](https://travis-ci.org/askovpen/node-fidonet-squish)
