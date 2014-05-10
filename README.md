@@ -1,14 +1,15 @@
 node-fidonet-squish
 ===================
 
-node-fidonet-squish
-
+[![Build Status](https://travis-ci.org/askovpen/node-fidonet-squish.svg?branch=master)](https://travis-ci.org/askovpen/node-fidonet-squish)
 
 The **Fidonet Squish** module is able to read headers and texts of Fidonet echomail messages from Squish message bases
 
-## Using Fidonet JAM
+[![(npm package version)](https://nodei.co/npm/fidonet-squish.png?downloads=true)](https://npmjs.org/package/fidonet-squish)
 
-When you `require()` the installed module, you get a constructor that uses the path to a JAM echo base as its parameter:
+## Using Fidonet Squish
+
+When you `require()` the installed module, you get a constructor that uses the path to a Squish echo base as its parameter:
 
 ```js
 var Squish = require('fidonet-squish');
@@ -31,7 +32,7 @@ Asynchronously reads the `.sqi` file (Squish index) into memory and parses that 
 
 * `offset` — the physical offset of the message's data in the `.sqd` (header) file.
 
-* `MessageNum0` — a message's rebased (zero-based) internal number. Starts from `0` (zero), i.e. `.indexStructure[0].MessageNum0 === 0`. The `basemsgnum` value from the “JAM fixed header” (see below) should be added to generate the actual internal number of a message. Deleted messages leave gaps in that numbering (such as `.indexStructure[i].MessageNum0 > i` and `.indexStructure[i].MessageNum0 > .indexStructure[i-1].MessageNum0 + 1`) until the message base is packed by an echoprocessor.
+* `MessageNum0` — a message's rebased (zero-based) internal number. Starts from `0` (zero), i.e. `.indexStructure[0].MessageNum0 === 0`. The `basemsgnum` value from the “Squish fixed header” (see below) should be added to generate the actual internal number of a message. Deleted messages leave gaps in that numbering (such as `.indexStructure[i].MessageNum0 > i` and `.indexStructure[i].MessageNum0 > .indexStructure[i-1].MessageNum0 + 1`) until the message base is packed by an echoprocessor.
 
 
 ### readSQD(callback)
@@ -69,4 +70,3 @@ Returns `.indexStructure.length` property (or `undefined` when `.indexStructure`
 ...
 
 
-[![Build Status](https://travis-ci.org/askovpen/node-fidonet-squish.svg?branch=master)](https://travis-ci.org/askovpen/node-fidonet-squish)
