@@ -37,9 +37,7 @@ describe('Fidonet Squish', function(){
 	it('reads the '+headSampleth+' header, its encoding and contents, clears cache', function(done){
 		echo.readHeader(headSample, function(err, header){
 			console.log(util.inspect(echo.indexStructure[headSample-1], false, Infinity, true));
-			console.log(util.inspect(
-			            header, false, Infinity, true
-			                     ));
+			console.log(util.inspect(header, false, Infinity, true));
 			assert.equal(header.Signature,2947433555);
 			console.log(util.inspect(echo.decodeHeader(header), false, Infinity, true));
 			echo.decodeMessage(header,function(err, messageText){
@@ -100,5 +98,4 @@ describe('Fidonet Squish', function(){
 			});
 		});
 	});
-	                     
 });
