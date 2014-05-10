@@ -18,7 +18,6 @@ Squish.prototype.readSQL = function(callback){
 	fs.readFile(_Squish.echoPath+'.sql', function(err, data){
 		if (err) return callback(err);
 		_Squish.lastreads=data.readUInt32LE(0);
-//		console.log("lastreads: ",_Squish.lastreads);
 		callback(null);
 	});
 };
@@ -48,6 +47,22 @@ Squish.prototype.readSQI = function(callback){
 		callback(null);
 	});
 };
+Squish.prototype.bufHash32 = function (buf) {
+	var hash=0;
+	for (var i=0;i<buf.length;i++){
+		var strInt=String.fromCharCode(buf[i]).toLowerCase().charCodeAt(0);
+		if (strInt!==0) {
+			hash=(hash<<4)+strInt;
+			var g = hash & 0xF0000000;
+			if (g) {
+				hash |= g >>> 24;
+				hash |= g;
+			}
+		}
+	}
+	return hash & 0x7FFFFFFF;
+};
+
 Squish.prototype.clearCache = function(cache){
 	switch(cache){
 		case 'lastreads':
@@ -98,48 +113,32 @@ Squish.prototype.readHeader = function(number, callback){ // err, struct
 			var header = {};
 			var offsetSQD = _Squish.indexStructure[number-1].offset;
 			header.Signature =_Squish.SQD.readUInt32LE(offsetSQD);
-			offsetSQD+=16;
-			header.MsgLen=_Squish.SQD.readUInt32LE(offsetSQD);
-			offsetSQD+=4;
-			header.cLen=_Squish.SQD.readUInt32LE(offsetSQD);
-			offsetSQD+=12;
-//			header.unknown=_Squish.SQD.readUInt32LE(offsetSQD);
+			header.MsgLen=_Squish.SQD.readUInt32LE(offsetSQD+16);
+			header.cLen=_Squish.SQD.readUInt32LE(offsetSQD+20);
+			header.attrs=_Squish.SQD.readUInt32LE(offsetSQD+28);
 			header.from=new Buffer(36);
 			header.to=new Buffer(36);
 			header.subj=new Buffer(72);
-			_Squish.SQD.copy(header.from,0,offsetSQD,offsetSQD+36);
-			offsetSQD+=36;
-			_Squish.SQD.copy(header.to,0,offsetSQD,offsetSQD+36);
-			offsetSQD+=36;
-			_Squish.SQD.copy(header.subj,0,offsetSQD,offsetSQD+72);
-			offsetSQD+=72;
+			_Squish.SQD.copy(header.from,0,offsetSQD+32,offsetSQD+32+36);
+			_Squish.SQD.copy(header.to,0,offsetSQD+68,offsetSQD+68+36);
+			_Squish.SQD.copy(header.subj,0,offsetSQD+104,offsetSQD+104+72);
 			header.fromAddr=new Buffer(8);
-			_Squish.SQD.copy(header.fromAddr,0,offsetSQD,offsetSQD+8);
-			offsetSQD+=8;
+			_Squish.SQD.copy(header.fromAddr,0,offsetSQD+176,offsetSQD+176+8);
 			header.toAddr=new Buffer(8);
-			_Squish.SQD.copy(header.toAddr,0,offsetSQD,offsetSQD+8);
-			offsetSQD+=8;
-			header.dateWritten=_Squish.SQD.readUInt32LE(offsetSQD);
-//			console.log(header.dateWritten.toString(2));
-//			console.log(moment({d:(header.dateWritten & 31),M:((header.dateWritten>>5)&15)-1,y:1980+((header.dateWritten>>9)&127),s:((header.dateWritten>>16)&31)*2,m:((header.dateWritten>>21)&63),h:((header.dateWritten>>27)&31)}).toString());
-			offsetSQD+=4;
-			header.dateArrived=_Squish.SQD.readUInt32LE(offsetSQD);
-//			console.log(moment({d:(header.dateArrived & 31),M:((header.dateArrived>>5)&15)-1,y:1980+((header.dateArrived>>9)&127),s:((header.dateArrived>>16)&31)*2,m:((header.dateArrived>>21)&63),h:((header.dateArrived>>27)&31)}).toString());
-//			console.log(util.inspect(_Squish.indexStructure[number-1],false,Infinity,true));
-//			console.log(header.MsgLeno);
-			offsetSQD+=4;
-			header.utc_offset=_Squish.SQD.readUInt16LE(offsetSQD);
-			offsetSQD+=46;
+			_Squish.SQD.copy(header.toAddr,0,offsetSQD+184,offsetSQD+184+8);
+			header.dateWritten=_Squish.SQD.readUInt32LE(offsetSQD+192);
+			header.dateArrived=_Squish.SQD.readUInt32LE(offsetSQD+196);
+			header.utc_offset=_Squish.SQD.readUInt16LE(offsetSQD+200);
 			header.fromDate=new Buffer(20);
-			_Squish.SQD.copy(header.fromDate,0,offsetSQD,offsetSQD+20);
-			offsetSQD+=20;
+			_Squish.SQD.copy(header.fromDate,0,offsetSQD+246,offsetSQD+246+20);
 			header.kludges=new Buffer(header.cLen);
-			_Squish.SQD.copy(header.kludges,0,offsetSQD,offsetSQD+header.cLen);
-			offsetSQD+=header.cLen;
+			_Squish.SQD.copy(header.kludges,0,offsetSQD+266,offsetSQD+266+header.cLen);
 			var seenPos=null;
 			var pathPos=null;
-			var endPos=offsetSQD+header.MsgLen-238-header.cLen;
-			for (var i=offsetSQD;i<offsetSQD+header.MsgLen-238-header.cLen-5;i++){
+			var endPos=offsetSQD+header.MsgLen+28;
+			header.xmsg=new Buffer(endPos-(offsetSQD+28));
+			_Squish.SQD.copy(header.xmsg,0,offsetSQD+28,endPos);
+			for (var i=offsetSQD+header.cLen+266;i<endPos-5;i++){
 				if (seenPos===null){
 					if (_Squish.SQD[i]==13 && //\r
 						_Squish.SQD[i+1]==83 && //S
@@ -150,7 +149,7 @@ Squish.prototype.readHeader = function(number, callback){ // err, struct
 					}
 				}
 				if (pathPos===null){
-					if (_Squish.SQD[i]==1 && //\r
+					if (_Squish.SQD[i]==1 && //\1
 						_Squish.SQD[i+1]==80 && //P
 						_Squish.SQD[i+2]==65 && //A
 						_Squish.SQD[i+3]==84 && //T
@@ -160,8 +159,8 @@ Squish.prototype.readHeader = function(number, callback){ // err, struct
 				}
 			}
 			if (seenPos!==null){
-				header.msg=new Buffer(seenPos-offsetSQD);
-				_Squish.SQD.copy(header.msg,0,offsetSQD,seenPos);
+				header.msg=new Buffer(seenPos-(offsetSQD+header.cLen+266));
+				_Squish.SQD.copy(header.msg,0,offsetSQD+header.cLen+266,seenPos);
 				if (pathPos!==null){
 					header.seen=new Buffer(pathPos-seenPos);
 					_Squish.SQD.copy(header.seen,0,seenPos,pathPos);
@@ -173,13 +172,13 @@ Squish.prototype.readHeader = function(number, callback){ // err, struct
 				}
 			}else {
 				if (pathPos!==null){
-					header.msg=new Buffer(pathPos-offsetSQD);
-					_Squish.SQD.copy(header.msg,0,offsetSQD,pathPos);
+					header.msg=new Buffer(pathPos-(offsetSQD+header.cLen+266));
+					_Squish.SQD.copy(header.msg,0,(offsetSQD+header.cLen+266),pathPos);
 					header.path=new Buffer(endPos-pathPos);
 					_Squish.SQD.copy(header.path,0,pathPos,endPos);
 				}else{
-					header.msg=new Buffer(endPos-offsetSQD);
-					_Squish.SQD.copy(header.msg,0,offsetSQD,endPos);
+					header.msg=new Buffer(endPos-(offsetSQD+header.cLen+266));
+					_Squish.SQD.copy(header.msg,0,(offsetSQD+header.cLen+266),endPos);
 				}
 			}
 			callback(null,header);
@@ -232,6 +231,7 @@ Squish.prototype.decodeHeader = function(header, decodeOptions){
 	decoded.path = sb.bufToStr(header.path,encoding).replace(/\r/g,'\n').replace(/\u0000/g,'');
 	decoded.seenby = sb.bufToStr(header.seen,encoding).replace(/\r/g,'\n').replace(/\u0000/g,'');
 	decoded.from = sb.bufToStr(header.from,encoding).replace(/\u0000/g,'');
+	decoded.rawto = header.to;
 	decoded.to = sb.bufToStr(header.to,encoding).replace(/\u0000/g,'');
 	decoded.fromAddr=header.fromAddr.readUInt16LE(0)+":"+header.fromAddr.readUInt16LE(2)+"/"+header.fromAddr.readUInt16LE(4)+"."+header.fromAddr.readUInt16LE(6);
 	var re=/\u0001(.*?):\s*([^\u0001]*)/gm;
@@ -253,7 +253,6 @@ Squish.prototype.decodeHeader = function(header, decodeOptions){
 			default:
 				decoded.kludges.push(parts[1]+': '+parts[2]);
 		}
-//		console.log("kl: "+util.inspect(parts));
 	}
 	return decoded;
 };
@@ -270,6 +269,8 @@ Squish.prototype.decodeMessage = function(header, decodeOptions, callback){
                header.msg, encoding
                      ).replace(/\r/g, '\n'));
                      
+};
+Squish.prototype.checkHash = function(number, callback){
 };
 Squish.prototype.readAllHeaders = function(callback){
 	var _Squish = this;

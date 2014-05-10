@@ -67,6 +67,8 @@ Returns `.indexStructure.length` property (or `undefined` when `.indexStructure`
 
 ### numbersForMSGID(MSGID, options, callback)
 
-...
+Return `msgnum` for MsgId
 
+### bufHash32(buffer)
 
+Return hash of buffer

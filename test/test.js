@@ -9,6 +9,13 @@ var headSampleMSGID = '2:5020/848 50c68f1e';
 
 describe('Fidonet Squish', function(){
 	var echo=Squish( path.join(__dirname, "ru.linux.chainik"));
+	it('calculates correct Squish hash of an empty string', function(){
+		assert.equal(echo.bufHash32(new Buffer('')), 0);
+	});
+	it('calculates correct Squish hash of the string "Alexander N. Skovpen"',
+		function(){
+		assert.equal(echo.bufHash32(new Buffer('Alexander N. Skovpen')), 15718334);
+	});
 	it('reads lastreads, can clear the cache afterwards', function(done){
 		echo.readSQL(function(err){
 			if (err) throw err;
@@ -29,6 +36,7 @@ describe('Fidonet Squish', function(){
 	});
 	it('reads the '+headSampleth+' header, its encoding and contents, clears cache', function(done){
 		echo.readHeader(headSample, function(err, header){
+			console.log(util.inspect(echo.indexStructure[headSample-1], false, Infinity, true));
 			console.log(util.inspect(
 			            header, false, Infinity, true
 			                     ));
@@ -62,6 +70,15 @@ describe('Fidonet Squish', function(){
 		echo.readAllHeaders(function(err,messageHeaders){
 			if (err) throw err;
 			assert.equal(messageHeaders.length, headCount);
+			done();
+		});
+	});
+	it ('check hash for '+headCount+ ' messages', function(done){
+		echo.readAllHeaders(function(err,messageHeaders){
+			if (err) throw err;
+			for (var i=0;i<messageHeaders.length;i++){
+				assert.equal(echo.bufHash32(new Buffer(messageHeaders[i].rawto)), echo.indexStructure[i].CRC);
+			}
 			done();
 		});
 	});
