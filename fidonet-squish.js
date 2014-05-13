@@ -292,6 +292,73 @@ Squish.prototype.readAllHeaders = function(callback){
 		nextHeaderProcessor();
 	});
 };
+Squish.prototype.getAvatarsForHeader = function(header, schemes, avatarOptions){
+	var _Squish = this;
+	var gravatarDefaults = {
+		size: 200,
+		rating: 'x',
+		gravatarDefault: 'mm'
+	};
+	var defaults = extend(decodeDefaults, gravatarDefaults);
+	var options  = extend(defaults, avatarOptions);
+	schemes = schemes.map(function(scheme){
+		return scheme.toLowerCase();
+	});
+	var findHTTPS = schemes.indexOf('https') > -1;
+	var findHTTP  = schemes.indexOf('http')  > -1;
+	var findFREQ  = schemes.indexOf('freq')  > -1;
+	var regularAvatars = [];
+	var gravatars = [];
+	var avatarsGIF = [];
+	var decoded = _Squish.decodeHeader( header, options );
+	decoded.kludges.forEach(function(kludge){
+		var matches;
+		var regex;
+		var avatarURL;
+		regex = /^[Aa][Vv][Aa][Tt][Aa][Rr]:(?:.*\s)?((\S+?):\S+)\s*$/;
+		matches = regex.exec(kludge);
+		if( matches !== null ){
+			avatarURL = matches[1];
+			var avatarScheme = matches[2];
+			if( schemes.indexOf(avatarScheme) > -1 ){
+				regularAvatars.push(avatarURL);
+			}
+			return;
+		}
+		if( findHTTP || findHTTPS ){
+			regex = /^[Gg][Rr][Aa][Vv][Aa][Tt][Aa][Rr]:\s*([01-9A-Fa-f]+)\s*$/;
+			matches = regex.exec(kludge);
+			if( matches !== null ){
+				var gravatarHash = matches[1];
+				if( findHTTPS ){ // secure:
+					avatarURL = 'https://secure.gravatar.com/avatar/';
+				} else { // insecure:
+					avatarURL = 'http://www.gravatar.com/avatar/';
+				}
+				avatarURL += gravatarHash;
+				avatarURL += '?s=' + options.size;
+				avatarURL += '&r=' + options.rating;
+				avatarURL += '&d=' + options.gravatarDefault;
+				gravatars.push(avatarURL);
+				return;
+			}
+		}
+		if( findFREQ && ( options.origAddr || decoded.origAddr ) ){
+			regex = /^[Gg][Ii][Ff]:\s*(\S+)\s*$/;
+			matches = regex.exec(kludge);
+			if( matches !== null ){
+				var filenameGIF = matches[1];
+				avatarURL = 'freq://' + ( options.origAddr || decoded.origAddr );
+				avatarURL += '/' + filenameGIF + '.GIF';
+				avatarsGIF.push(avatarURL);
+				return;
+			}
+		}
+	});
+	if( gravatars.length  > 1 ) gravatars  = [];
+	if( avatarsGIF.length > 1 ) avatarsGIF = [];
+	return [].concat( regularAvatars, gravatars, avatarsGIF );
+};
 Squish.prototype.numbersForMSGID = function(MSGID, decodeOptions, callback) {
 	var _Squish = this;
 	if(typeof callback === 'undefined' && typeof decodeOptions === 'function'){
