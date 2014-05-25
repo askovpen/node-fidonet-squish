@@ -2,7 +2,7 @@ var fs = require('fs');
 var util = require('util');
 var sb = require('singlebyte');
 var moment = require('moment');
-var extend = require('util')._extend;
+var extend = require('extend');
 
 var Squish = function(echoPath){
 	if (!(this instanceof Squish)) return new Squish(echoPath);
@@ -221,7 +221,7 @@ var decodeDefaults = {
 	useDefaultIfUnknown: true
 };
 Squish.prototype.decodeHeader = function(header, decodeOptions){
-	var options = extend(decodeDefaults, decodeOptions);
+	var options = extend({}, decodeDefaults, decodeOptions);
 	var encoding=this.encodingFromHeader(header);
 	if( encoding === null ) encoding = options.defaultEncoding;
 	var decoded={};
@@ -262,7 +262,7 @@ Squish.prototype.decodeMessage = function(header, decodeOptions, callback){
 		callback = decodeOptions;
 		decodeOptions = void 0;
 	}
-	var options = extend(decodeDefaults, decodeOptions);
+	var options = extend({}, decodeDefaults, decodeOptions);
 	var encoding=this.encodingFromHeader(header);
 	if( encoding === null ) encoding = options.defaultEncoding;
     callback(null, sb.bufToStr(
@@ -299,8 +299,7 @@ Squish.prototype.getAvatarsForHeader = function(header, schemes, avatarOptions){
 		rating: 'x',
 		gravatarDefault: 'mm'
 	};
-	var defaults = extend(decodeDefaults, gravatarDefaults);
-	var options  = extend(defaults, avatarOptions);
+	var options  = extend({}, decodeDefaults, gravatarDefaults, avatarOptions);
 	schemes = schemes.map(function(scheme){
 		return scheme.toLowerCase();
 	});
@@ -366,7 +365,7 @@ Squish.prototype.numbersForMSGID = function(MSGID, decodeOptions, callback) {
 		decodeOptions = void 0;
 	}
 	if( !Array.isArray(MSGID) ) MSGID = [ MSGID ];
-	var options = extend(decodeDefaults, decodeOptions);
+	var options = extend({}, decodeDefaults, decodeOptions);
 	_Squish.readAllHeaders(function(err, messageHeaders){
 		if (err) return callback(err);
 		var resultArray = messageHeaders.map(function(hdr, idx){
