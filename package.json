@@ -6,6 +6,7 @@
 	"keywords": ["Fidonet", "Fido", "Squish"],
 	"author": { "name": "Alexander N. Skovpen" },
 	"dependencies": {
+		"extend": "~1.2.1",
 		"moment": "~2.3.0",
 		"singlebyte": "~1.0.11"
 	},
