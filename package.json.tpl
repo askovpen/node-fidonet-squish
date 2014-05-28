@@ -5,6 +5,11 @@
 	"description": "Fidonet Squish message base parser",
 	"keywords": ["Fidonet", "Fido", "Squish"],
 	"author": { "name": "Alexander N. Skovpen" },
+	"contributors": [
+		{
+			"name": "Mithgol the Webmaster"
+		}
+	],
 	"dependencies": {
 		"extend": "~1.2.1",
 		"moment": "~2.3.0",
