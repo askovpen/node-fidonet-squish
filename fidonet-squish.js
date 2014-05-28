@@ -265,10 +265,9 @@ Squish.prototype.decodeMessage = function(header, decodeOptions, callback){
 	var options = extend({}, decodeDefaults, decodeOptions);
 	var encoding=this.encodingFromHeader(header);
 	if( encoding === null ) encoding = options.defaultEncoding;
-    callback(null, sb.bufToStr(
-               header.msg, encoding
-                     ).replace(/\r/g, '\n'));
-                     
+	callback(null, sb.bufToStr(
+		header.msg, encoding
+	).replace(/\r/g, '\n'));
 };
 Squish.prototype.checkHash = function(number, callback){
 };
