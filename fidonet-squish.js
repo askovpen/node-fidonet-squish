@@ -374,6 +374,27 @@ Squish.prototype.numbersForMSGID = function(MSGID, decodeOptions, callback) {
 		callback(null,resultArray);
 	});
 };
+Squish.prototype.headersForMSGID = function(MSGID, decodeOptions, callback) {
+	var _Squish = this;
+	if(typeof callback === 'undefined' && typeof decodeOptions === 'function'){
+		callback = decodeOptions;
+		decodeOptions = void 0;
+	}
+	if( !Array.isArray(MSGID) ) MSGID = [ MSGID ];
+	var options = extend({}, decodeDefaults, decodeOptions);
+	_Squish.readAllHeaders(function(err, messageHeaders){
+		if (err) return callback(err);
+		var headersArray = messageHeaders.map(function(hdr, idx){
+			if( MSGID.indexOf(hdr.msgid) > -1 ){
+				hdr.MessageIndex = idx+1;
+				return hdr;
+			} else return null;
+		}).filter(function(header){
+			return header !== null;
+		});
+		callback(null, headersArray);
+	});
+};
 Squish.prototype.errors = {
 	NOT_A_POSITIVE: "The message's number must be positive!",
 	TOO_BIG: "The message's number exceed the message base's size!",

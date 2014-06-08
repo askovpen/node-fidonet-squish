@@ -28,8 +28,8 @@ gulp.task('lint',['replace'], function() {
 		.pipe(jshint.reporter('fail'));
 });
 gulp.task('test',['lint'], function() {
-    gulp.src('test/test.js')
-	.pipe(mocha({timeout:'60s',reporter:'spec'}));
+	gulp.src('test/test.js')
+		.pipe(mocha({timeout:'60s',reporter:'spec'}));
 });
 gulp.task('copy',['test'], function() {
 	gulp.src(['README.md','fidonet-squish.js','LICENSE'])
