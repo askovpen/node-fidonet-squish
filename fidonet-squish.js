@@ -400,4 +400,75 @@ Squish.prototype.errors = {
 	TOO_BIG: "The message's number exceed the message base's size!",
 	UNKNOWN_ENCODING: "Unknown encoding!"
 };
+Squish.prototype.get1stChildNumber = function(number, callback){
+	number-=1;
+	var _Squish = this;
+	_Squish.readAllHeaders(function(err, messageHeaders){
+		if (err) callback(err);
+		var arr=messageHeaders.map(function(hdr,idx) {
+			if (hdr.replyid==messageHeaders[number].msgid)
+				return idx+1;
+			return null;
+		}).filter(function(number){ return number!==null;});
+		if (arr.length>0){callback(null,arr[0]);} else {
+		callback(null,null);}
+	});
+};
+Squish.prototype.getChildrenNumbers = function(number, callback){
+	number-=1;
+	var _Squish = this;
+	_Squish.readAllHeaders(function(err, messageHeaders){
+		if (err) callback(err);
+		var arr=messageHeaders.map(function(hdr,idx) {
+			if (hdr.replyid==messageHeaders[number].msgid)
+				return idx+1;
+			return null;
+		}).filter(function(number){ return number!==null;});
+		callback(null,arr.length);
+	});
+};
+Squish.prototype.getParentNumber = function(number, callback){
+	number-=1;
+	var _Squish = this;
+	_Squish.readAllHeaders(function(err, messageHeaders){
+		if (err) callback(err);
+		if (!('replyid' in messageHeaders[number])){
+			callback(null,null);
+			return;
+		}
+		var arr=messageHeaders.map(function(hdr,idx) {
+			if (hdr.msgid==messageHeaders[number].replyid)
+				return idx+1;
+			return null;
+		}).filter(function(number){ return number!==null;});
+		if (arr.length>0){callback(null,arr[0]);} else {
+		callback(null,null);}
+	});
+};
+Squish.prototype.getOrigAddr = function(header, decodeOptions, callback) {
+	if(typeof callback === 'undefined' && typeof decodeOptions === 'function'){
+		callback = decodeOptions;	
+		decodeOptions = void 0;
+	}
+	callback(null,header.fromAddr);
+};
+Squish.prototype.getNextChildNumber = function(number,callback){
+	number-=1;
+	_Squish=this;
+	_Squish.getParentNumber(number+1,function(err,num2){
+		if (err) callback(err);
+		if (num2===null){callback(null,null);return;}
+		_Squish.readAllHeaders(function(err, messageHeaders){
+			if (err) callback(err);
+			var arr=messageHeaders.map(function(hdr,idx) {
+				if (hdr.replyid==messageHeaders[num2-1].msgid)
+					if (idx>number) return idx+1;
+				return null;
+			}).filter(function(number){ return number!==null;});
+			if (arr.length>0) {callback(null,arr[0]);return}
+			callback(null,null);
+		});
+	});
+};
+
 module.exports = Squish;

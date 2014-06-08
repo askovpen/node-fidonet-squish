@@ -72,3 +72,47 @@ Return `msgnum` for MsgId
 ### bufHash32(buffer)
 
 Return hash of buffer
+
+### getAvatarsForHeader(header, schemes, avatarOptions)
+
+...
+
+### headersForMSGID(MSGID, options, callback)
+
+Works exactly as `.numbersForMSGID`, but an array of messages' headers (instead of their numbers) is given to the callback: `callback(error, headers)`.
+
+Each of the headers (found for the given MSGID or MSGIDs) has the same properties as a result of `.readHeader`. Each header is additionally given another property (`MessageIndex`) that contains its number as found in `.numbersForMSGID`. (Do not confuse it with JAM's internal `MessageNumber` property of the same header object.)
+
+### getParentNumber(number, callback)
+
+Using the given message's number, finds out that message's parent in the tree of replies (i.e. the message that the given message replies to), calling `.readHeader` and `.readFixedHeaderInfoStruct` in the process. Then `callback(error, parentNumber)` is called, where `parentNumber === null` if the parent message cannot be found (for example, if the given message is not a reply).
+
+Possible number values (of the given and the found number) start from (and including) `1` and go to (and including) `.size()` without gaps. (The internal `MessageNumber` values are used only internally in this method.)
+
+### get1stChildNumber(number, callback)
+
+Using the given message's number, finds out the number of its first child in the tree of replies (i.e. the first of the messages that reply to the given message), calling `.readHeader` and `.readFixedHeaderInfoStruct` in the process. Then `callback(error, childNumber)` is called, where `childNumber === null` if the given message has no replies.
+
+Possible number values (of the given and the found number) start from (and including) `1` and go to (and including) `.size()` without gaps. (The internal `MessageNumber` values are used only internally in this method.)
+
+### getNextChildNumber(number, callback)
+
+Using the given message's number, finds out the number of its next sibling in the tree of replies (i.e. the next of the messages that reply to the given message's parent), calling `.readHeader` and `.readFixedHeaderInfoStruct` in the process. Then `callback(error, siblingNumber)` is called, where `siblingNumber === null` if such sibling message cannot be found (for example, if the given message is not a reply or if it's the last of the replies ever given to its parent message).
+
+Possible number values (of the given and the found number) start from (and including) `1` and go to (and including) `.size()` without gaps. (The internal `MessageNumber` values are used only internally in this method.)
+
+### getChildrenNumbers(number, callback)
+
+Using the given message's number, finds out the numbers of its children in the tree of replies (i.e. the messages that reply to the given message), calling `.get1stChildNumber` and (probably) `.getNextChildNumber` in the process. Then `callback(error, childrenNumbers)` is called, where `childrenNumbers` is an array (can be `[]` if the given message has no replies).
+
+Possible number values (of the given and the found numbers) start from (and including) `1` and go to (and including) `.size()` without gaps. (The internal `MessageNumber` values are used only internally in this method.)
+
+### getOrigAddr(header, decodeOptions, callback)
+
+...
+
+## Locking files
+
+The module **does not** lock any files and **does not** create any “lock files” (flag files, semaphore files). The module's caller should control the access to the message base.
+
+That's because Fidonet software uses different locking methods. For example, GoldED+ uses OS file locking (as seen in its [source code](http://golded-plus.cvs.sourceforge.net/viewvc/golded-plus/golded%2B/goldlib/gall/gfilport.cpp?revision=1.5&view=markup)) and HPT uses a lock file (the file's name is given on the `LockFile` line in the HPT's config). It would complicate the module if it were the module's job to know what locking is necessary.
