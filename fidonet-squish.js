@@ -136,8 +136,6 @@ Squish.prototype.readHeader = function(number, callback){ // err, struct
 			var seenPos=null;
 			var pathPos=null;
 			var endPos=offsetSQD+header.MsgLen+28;
-			header.xmsg=new Buffer(endPos-(offsetSQD+28));
-			_Squish.SQD.copy(header.xmsg,0,offsetSQD+28,endPos);
 			for (var i=offsetSQD+header.cLen+266;i<endPos-5;i++){
 				if (seenPos===null){
 					if (_Squish.SQD[i]==13 && //\r
