@@ -424,7 +424,7 @@ Squish.prototype.getChildrenNumbers = function(number, callback){
 				return idx+1;
 			return null;
 		}).filter(function(number){ return number!==null;});
-		callback(null,arr.length);
+		callback(null,arr);
 	});
 };
 Squish.prototype.getParentNumber = function(number, callback){

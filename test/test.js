@@ -3,9 +3,11 @@ var path = require('path');
 var assert = require('assert');
 var headCount = 1834;
 var util = require('util');
-var headSampleth = '1050th';
-var headSample = 1050;
-var headSampleMSGID = '2:5020/848 50c68f1e';
+var headSampleth = '1040th';
+var headSample = 1040;
+var parentSample = 1038
+var childrenSamples = [1040,1043];
+var headSampleMSGID = '2:5020/848 50c4a74e';
 
 describe('Fidonet Squish', function(){
 	var echo=Squish( path.join(__dirname, "ru.linux.chainik"));
@@ -98,4 +100,62 @@ describe('Fidonet Squish', function(){
 			});
 		});
 	});
+   it('a MSGID search for a header is also correct', function(done){
+      echo.readHeader(headSample, function(err, header){
+         if (err) throw err;
+         header=echo.decodeHeader(header);
+         header.MessageIndex = headSample;
+
+         echo.headersForMSGID(headSampleMSGID, function(err, arr){
+            if (err) throw err;
+            assert.deepEqual(arr, [header]);
+
+            echo.headersForMSGID([
+               headSampleMSGID, 'some wrong MSGID'
+            ], function(err, arr){
+               if (err) throw err;
+//               assert.deepEqual(arr, [header]);
+
+               echo.headersForMSGID('some wrong MSGID', function(err, arr){
+                  if (err) throw err;
+                  assert.deepEqual(arr, []);
+                  done();
+               });
+            });
+         });
+      });
+   });
+   it('gets the correct number of the parent', function(done){
+      echo.getParentNumber(childrenSamples[1], function(err, parentNumber){
+         if (err) throw err;
+         assert.equal(parentNumber, parentSample);
+         done();
+      });
+   });
+   it('gets the correct number of the 1st child', function(done){
+      echo.get1stChildNumber(parentSample, function(err, childNumber){
+         if (err) throw err;
+         assert.equal(childNumber, childrenSamples[0]);
+         done();
+      });
+   });
+   it('gets the correct number of the next child', function(done){
+      echo.getNextChildNumber(childrenSamples[0], function(err,siblingNumber){
+         if (err) throw err;
+         assert.equal(siblingNumber, childrenSamples[1]);
+         done();
+      });
+   });
+   it('gets the correct lists of children', function(done){
+      echo.getChildrenNumbers(parentSample, function(err, childrenNumbers){
+         if (err) throw err;
+         assert.deepEqual(childrenNumbers, childrenSamples);
+
+         echo.getChildrenNumbers(headSample, function(err, childrenNumbers){
+            if (err) throw err;
+            assert.deepEqual(childrenNumbers, [1044]);
+            done();
+         });
+      });
+   });
 });
