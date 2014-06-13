@@ -1,8 +1,8 @@
 var fs = require('fs');
 var util = require('util');
-var sb = require('singlebyte');
 var moment = require('moment');
 var extend = require('extend');
+require('iconv-lite').extendNodeEncodings();
 
 var Squish = function(echoPath){
 	if (!(this instanceof Squish)) return new Squish(echoPath);
@@ -223,14 +223,15 @@ Squish.prototype.decodeHeader = function(header, decodeOptions){
 	var encoding=this.encodingFromHeader(header);
 	if( encoding === null ) encoding = options.defaultEncoding;
 	var decoded={};
+	decoded.Signature = header.Signature;
 	decoded.kludges = [];
 	decoded.origTime=moment.utc(header.fromDate.toString()).toArray();
-	decoded.subj = sb.bufToStr(header.subj,encoding).replace(/\u0000/g,'');
-	decoded.path = sb.bufToStr(header.path,encoding).replace(/\r/g,'\n').replace(/\u0000/g,'');
-	decoded.seenby = sb.bufToStr(header.seen,encoding).replace(/\r/g,'\n').replace(/\u0000/g,'');
-	decoded.from = sb.bufToStr(header.from,encoding).replace(/\u0000/g,'');
+	decoded.subj = header.subj.toString(encoding).replace(/\u0000/g,'');
+	decoded.path = header.path.toString(encoding).replace(/\r/g,'\n').replace(/\u0000/g,'');
+	decoded.seenby = header.seen.toString(encoding).replace(/\r/g,'\n').replace(/\u0000/g,'');
+	decoded.from = header.from.toString(encoding).replace(/\u0000/g,'');
 	decoded.rawto = header.to;
-	decoded.to = sb.bufToStr(header.to,encoding).replace(/\u0000/g,'');
+	decoded.to = header.to.toString(encoding).replace(/\u0000/g,'');
 	decoded.fromAddr=header.fromAddr.readUInt16LE(0)+":"+header.fromAddr.readUInt16LE(2)+"/"+header.fromAddr.readUInt16LE(4)+"."+header.fromAddr.readUInt16LE(6);
 	var re=/\u0001(.*?):\s*([^\u0001]*)/gm;
 	while ((parts=re.exec(header.kludges))!==null)
@@ -263,9 +264,7 @@ Squish.prototype.decodeMessage = function(header, decodeOptions, callback){
 	var options = extend({}, decodeDefaults, decodeOptions);
 	var encoding=this.encodingFromHeader(header);
 	if( encoding === null ) encoding = options.defaultEncoding;
-	callback(null, sb.bufToStr(
-		header.msg, encoding
-	).replace(/\r/g, '\n'));
+	callback(null, header.msg.toString(encoding).replace(/\r/g, '\n'));
 };
 Squish.prototype.checkHash = function(number, callback){
 };

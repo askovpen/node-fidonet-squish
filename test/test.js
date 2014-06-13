@@ -41,7 +41,7 @@ describe('Fidonet Squish', function(){
 			console.log(util.inspect(echo.indexStructure[headSample-1], false, Infinity, true));
 			console.log(util.inspect(header, false, Infinity, true));
 			assert.equal(header.Signature,2947433555);
-			console.log(util.inspect(echo.decodeHeader(header), false, Infinity, true));
+			console.log(util.inspect(echo.decodeHeader(header),false, Infinity, true));
 			echo.decodeMessage(header,function(err, messageText){
 				if (err) throw err;
 				console.log('The '+headSampleth+' message (decoded):');
@@ -114,7 +114,7 @@ describe('Fidonet Squish', function(){
                headSampleMSGID, 'some wrong MSGID'
             ], function(err, arr){
                if (err) throw err;
-//               assert.deepEqual(arr, [header]);
+               assert.deepEqual(arr, [header]);
 
                echo.headersForMSGID('some wrong MSGID', function(err, arr){
                   if (err) throw err;
