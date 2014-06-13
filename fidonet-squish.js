@@ -200,7 +200,7 @@ Squish.prototype.encodingFromHeader = function(header){
 	if( parts !== null ){
 		var chrs = parts[1];
 		if( chrs === 'ibmpc' ){
-			parts = /^codepage:\s*(\S+)(\s.*)?$/.exec(bkludges);
+			var parts = /^codepage:\s*(\S+)(\s.*)?$/.exec(bkludges);
 			if( parts !== null ){
 				chrs = parts[1];
 				return normalizedEncoding(chrs);
@@ -234,6 +234,7 @@ Squish.prototype.decodeHeader = function(header, decodeOptions){
 	decoded.to = header.to.toString(encoding).replace(/\u0000/g,'');
 	decoded.fromAddr=header.fromAddr.readUInt16LE(0)+":"+header.fromAddr.readUInt16LE(2)+"/"+header.fromAddr.readUInt16LE(4)+"."+header.fromAddr.readUInt16LE(6);
 	var re=/\u0001(.*?):\s*([^\u0001]*)/gm;
+	var parts;
 	while ((parts=re.exec(header.kludges))!==null)
 	{
 		switch (parts[1].toLowerCase()){
@@ -451,7 +452,7 @@ Squish.prototype.getOrigAddr = function(header, decodeOptions, callback) {
 };
 Squish.prototype.getNextChildNumber = function(number,callback){
 	number-=1;
-	_Squish=this;
+	var _Squish=this;
 	_Squish.getParentNumber(number+1,function(err,num2){
 		if (err) callback(err);
 		if (num2===null){callback(null,null);return;}
