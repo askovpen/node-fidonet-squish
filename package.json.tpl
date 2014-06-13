@@ -7,7 +7,8 @@
 	"author": { "name": "Alexander N. Skovpen" },
 	"contributors": [
 		{
-			"name": "Mithgol the Webmaster"
+			"name": "Mithgol the Webmaster",
+			"email": "getgit@mithgol.ru"
 		}
 	],
 	"dependencies": {
