@@ -2,6 +2,7 @@ node-fidonet-squish
 ===================
 
 [![Build Status](https://travis-ci.org/askovpen/node-fidonet-squish.svg?branch=master)](https://travis-ci.org/askovpen/node-fidonet-squish)
+[![NPM version](https://badge.fury.io/js/fidonet-squish.svg)](http://badge.fury.io/js/fidonet-squish)
 
 The **Fidonet Squish** module is able to read headers and texts of Fidonet echomail messages from Squish message bases according to [FSP-1037 draft 3.](Squish.txt)
 
