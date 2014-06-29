@@ -42,9 +42,13 @@ describe('Fidonet Squish', function(){
 			console.log(util.inspect(header, false, Infinity, true));
 			assert.equal(header.Signature,2947433555);
 			console.log(util.inspect(echo.decodeHeader(header),false, Infinity, true));
+
+			console.log('\nKludges of the '+headSampleth+' header:');
+			console.log( echo.decodeKludges(header) );
+
 			echo.decodeMessage(header,function(err, messageText){
 				if (err) throw err;
-				console.log('The '+headSampleth+' message (decoded):');
+				console.log('\nThe '+headSampleth+' message (decoded):');
 				console.log(util.inspect(
 					messageText, false, Infinity, true
 				));

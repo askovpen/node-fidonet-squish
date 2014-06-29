@@ -63,6 +63,10 @@ Returns `.indexStructure.length` property (or `undefined` when `.indexStructure`
 
 ...
 
+### decodeKludges(header, options)
+
+...
+
 ### decodeMessage(header, options, callback)
 
 ...

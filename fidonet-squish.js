@@ -218,6 +218,19 @@ var decodeDefaults = {
 	defaultEncoding: 'cp866',
 	useDefaultIfUnknown: true
 };
+Squish.prototype.decodeKludges = function(header, decodeOptions){
+	var options = extend({}, decodeDefaults, decodeOptions);
+	var encoding=this.encodingFromHeader(header);
+	if( encoding === null ) encoding = options.defaultEncoding;
+	var re=/\u0001(.*?):\s*([^\u0001]*)/gm;
+	var parts;
+	var kludges = [];
+	while ((parts=re.exec(header.kludges))!==null)
+	{
+		kludges.push(parts[1]+': '+parts[2]);
+	}
+	return kludges.join('\n');
+};
 Squish.prototype.decodeHeader = function(header, decodeOptions){
 	var options = extend({}, decodeDefaults, decodeOptions);
 	var encoding=this.encodingFromHeader(header);
