@@ -162,4 +162,15 @@ describe('Fidonet Squish', function(){
          });
       });
    });
+	it('original addresses are available everywhere', function(done){
+		echo.readAllHeaders(function(err, messageHeaders){
+			if (err) throw err;
+			for (var i=0;i<messageHeaders.length;i++){
+				echo.getOrigAddr(messageHeaders[i], function(err, origAddr){
+					assert.notStrictEqual(origAddr, null);
+					if (i==(messageHeaders.length-1)){done();}
+				});
+			}
+		});
+	});
 });
