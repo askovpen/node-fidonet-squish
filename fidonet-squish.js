@@ -224,8 +224,9 @@ Squish.prototype.decodeKludges = function(header, decodeOptions){
 	if( encoding === null ) encoding = options.defaultEncoding;
 	var re=/\u0001(.*?):\s*([^\u0001]*)/gm;
 	var parts;
+	var kludgesText = header.kludges.toString(encoding);
 	var kludges = [];
-	while ((parts=re.exec(header.kludges))!==null)
+	while ((parts=re.exec(kludgesText))!==null)
 	{
 		kludges.push(parts[1]+': '+parts[2]);
 	}
