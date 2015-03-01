@@ -11,9 +11,9 @@
 		}
 	],
 	"dependencies": {
-		"extend": "~1.2.1",
-		"moment": "~2.3.0",
-		"iconv-lite": "~0.4.2"
+		"extend": "~2.0.0",
+		"moment": "~2.9.0",
+		"iconv-lite": "~0.4.7"
 	},
 	"repository": {
 		"type": "git",
